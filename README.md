@@ -1,16 +1,53 @@
-# React + Vite
+# Auralis Health Systems - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Auralis Health Systems is a modern, high-performance clinical decision-support interface designed for medical professionals. It prioritizes clarity, speed, and intuitive data visualization to assist doctors in critical monitoring and patient management.
 
-Currently, two official plugins are available:
+## 🚀 Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Follow these steps to get the project running locally:
 
-## React Compiler
+### 1. Clone the repository
+```bash
+git clone https://github.com/ATOS-team/auralis-frontend.git
+cd auralis-frontend
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 2. Install dependencies
+Make sure you have [Node.js](https://nodejs.org/) installed.
+```bash
+npm install
+```
 
-## Expanding the ESLint configuration
+### 3. Run the development server
+```bash
+npm run dev
+```
+The application will be available at `http://localhost:5173`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## ✨ Key Features
+
+- **Clinical Dashboard**: Real-time vitals monitoring and patient summary alerts.
+- **Patient Management**: Searchable and filterable database of patient records.
+- **Advanced Analytics**: Hospital-wide insights, recovery trends, and occupancy data.
+- **Interactive Schedule**: Calendar-based appointment management for clinical staff.
+- **Customizable Experience**: Includes a fully optimized **Dark Mode** and notification preferences.
+- **Responsive Design**: Works seamlessly across mobile, tablet, and desktop devices.
+
+## 🛠️ Tech Stack
+
+- **Framework**: [React](https://reactjs.org/) + [Vite](https://vitejs.dev/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Charts**: [Recharts](https://recharts.org/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **State Management**: React Context API (Auth)
+
+## 🩺 Demo Credentials
+For testing purposes (Mock Authentication):
+- **Email**: `doctor@auralis.com`
+- **Password**: `any_password`
+
+---
+© 2026 Auralis Health Systems. Designed for Clinical Excellence.
