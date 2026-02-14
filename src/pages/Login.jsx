@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Activity, Lock, Mail, ArrowRight } from 'lucide-react';
+import { Activity, Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -13,106 +13,156 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-        await login(email, password);
-        setIsSubmitting(false);
+        try {
+            await login(email, password);
+        } catch (err) {
+            console.error("Login failed:", err);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
-        <div className="flex h-screen w-full bg-background overflow-hidden">
-            {/* Left Panel - Visuals */}
-            <div className="hidden lg:flex w-1/2 bg-primary relative items-center justify-center overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary via-blue-600 to-indigo-900 opacity-90"></div>
+        <div className="flex h-screen w-full bg-background overflow-hidden font-sans">
+            {/* Left Panel - Visuals & Branding */}
+            <div className="hidden lg:flex w-7/12 bg-primary relative items-center justify-center overflow-hidden">
+                {/* High-quality medical background overlay */}
+                <div className="absolute inset-0 z-0">
+                    <img
+                        src="https://images.unsplash.com/photo-1576091160550-217359f4ecf8?auto=format&fit=crop&q=80&w=2070"
+                        alt="Medical Professionals"
+                        className="w-full h-full object-cover mix-blend-overlay opacity-40 scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-blue-900/95 to-indigo-950/100"></div>
+                </div>
 
-                {/* Decorative Circles */}
+                {/* Animated Decorative Elements */}
                 <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-                    className="absolute -top-24 -left-24 w-96 h-96 bg-white opacity-10 rounded-full blur-3xl"
-                />
-                <motion.div
-                    animate={{ rotate: -360 }}
-                    transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-                    className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-accent opacity-20 rounded-full blur-3xl"
+                    className="absolute -top-24 -left-24 w-96 h-96 bg-white opacity-5 rounded-full blur-3xl z-1"
                 />
 
-                <div className="relative z-10 p-12 text-white max-w-lg">
-                    <div className="flex items-center gap-3 mb-8">
-                        <div className="p-3 bg-white/10 backdrop-blur-md rounded-xl">
-                            <Activity className="h-8 w-8 text-white" />
+                <div className="relative z-10 p-16 text-white max-w-2xl">
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex items-center gap-4 mb-10"
+                    >
+                        <div className="p-4 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl">
+                            <Activity className="h-10 w-10 text-white" />
                         </div>
-                        <h1 className="text-3xl font-bold tracking-tight">Auralis Health</h1>
-                    </div>
-                    <h2 className="text-4xl font-bold mb-6 leading-tight">
-                        Clinical clarity, <br />
-                        captured in moments.
-                    </h2>
-                    <p className="text-blue-100 text-lg leading-relaxed">
-                        Access patient histories, visualize vitals, and receive real-time risk alerts with our new decision support system.
-                    </p>
+                        <h1 className="text-4xl font-black tracking-tighter uppercase italic">Auralis Health Systems</h1>
+                    </motion.div>
+
+                    <motion.h2
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-6xl font-extrabold mb-8 leading-[1.1] tracking-tight"
+                    >
+                        Precision Insight <br />
+                        <span className="text-blue-400">At Every Moment.</span>
+                    </motion.h2>
+
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-blue-100/80 text-xl leading-relaxed font-medium mb-12 max-w-lg"
+                    >
+                        The intelligent clinical cockpit for modern healthcare. Access high-fidelity patient telemetry and predictive risk scoring in one unified interface.
+                    </motion.p>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 }}
+                        className="grid grid-cols-2 gap-6"
+                    >
+                        <div className="bg-white/5 backdrop-blur-sm p-4 rounded-xl border border-white/10">
+                            <div className="flex items-center gap-2 mb-1">
+                                <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                                <span className="text-sm font-bold uppercase tracking-widest text-emerald-400">Secure</span>
+                            </div>
+                            <p className="text-xs text-blue-200">HIPAA Compliant Data Layer</p>
+                        </div>
+                        <div className="bg-white/5 backdrop-blur-sm p-4 rounded-xl border border-white/10">
+                            <div className="flex items-center gap-2 mb-1">
+                                <Activity className="h-4 w-4 text-blue-400" />
+                                <span className="text-sm font-bold uppercase tracking-widest text-blue-400">Real-Time</span>
+                            </div>
+                            <p className="text-xs text-blue-200">Kaggle Dataset Telemetry</p>
+                        </div>
+                    </motion.div>
                 </div>
             </div>
 
             {/* Right Panel - Login Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 relative">
-                <div className="absolute top-0 right-0 p-8">
-                    <Link to="/register" className="text-sm font-medium text-primary hover:text-blue-700 transition-colors">
-                        Need an account? Sign up
+            <div className="w-full lg:w-5/12 flex items-center justify-center p-12 relative bg-card">
+                <div className="absolute top-0 right-0 p-10">
+                    <Link to="/register" className="text-sm font-bold text-primary hover:text-blue-700 transition-all flex items-center gap-2 group">
+                        Sign up for access <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </div>
 
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5 }}
-                    className="w-full max-w-md space-y-8"
+                    className="w-full max-w-md space-y-10"
                 >
                     <div className="text-center lg:text-left">
-                        <h2 className="text-3xl font-bold tracking-tight text-foreground">Welcome back</h2>
-                        <p className="mt-2 text-muted-foreground">
-                            Sign in to your dashboard to view patient data.
+                        <div className="lg:hidden flex items-center gap-2 justify-center mb-6">
+                            <Activity className="h-8 w-8 text-primary" />
+                            <h1 className="text-2xl font-black italic tracking-tighter uppercase">AURALIS</h1>
+                        </div>
+                        <h2 className="text-4xl font-extrabold tracking-tighter text-foreground mb-4">Clinical Login</h2>
+                        <p className="text-lg text-muted-foreground font-medium">
+                            Authorized personnel only. Access hospital cockpit.
                         </p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-                        <div className="space-y-5">
+                    <form onSubmit={handleSubmit} className="mt-10 space-y-8">
+                        <div className="space-y-6">
                             <div>
-                                <label className="block text-sm font-medium text-foreground/80 mb-2">
-                                    Email Address
+                                <label className="block text-sm font-bold text-foreground/70 uppercase tracking-widest mb-3">
+                                    Clinical Email
                                 </label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted-foreground">
-                                        <Mail className="h-5 w-5" />
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
+                                        <Mail className="h-6 w-6" />
                                     </div>
                                     <input
                                         type="email"
                                         required
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        className="block w-full pl-10 pr-3 py-3 border border-input rounded-xl bg-secondary/30 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                                        className="block w-full pl-14 pr-4 py-4.5 border-2 border-border rounded-2xl bg-secondary/20 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none text-lg font-medium"
                                         placeholder="doctor@auralis.com"
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-foreground/80 mb-2">
+                                <label className="block text-sm font-bold text-foreground/70 uppercase tracking-widest mb-3">
                                     Password
                                 </label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted-foreground">
-                                        <Lock className="h-5 w-5" />
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
+                                        <Lock className="h-6 w-6" />
                                     </div>
                                     <input
                                         type="password"
                                         required
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="block w-full pl-10 pr-3 py-3 border border-input rounded-xl bg-secondary/30 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                                        className="block w-full pl-14 pr-4 py-4.5 border-2 border-border rounded-2xl bg-secondary/20 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none text-lg font-medium"
                                         placeholder="••••••••"
                                     />
                                 </div>
-                                <div className="flex justify-end mt-2">
-                                    <a href="#" className="text-xs font-medium text-primary hover:text-blue-700">Forgot password?</a>
+                                <div className="flex justify-end mt-3">
+                                    <a href="#" className="text-sm font-bold text-primary hover:text-blue-700 transition-colors">Recover Credentials</a>
                                 </div>
                             </div>
                         </div>
@@ -120,21 +170,23 @@ const Login = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="group relative w-full flex justify-center py-3.5 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-primary hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all shadow-lg hover:shadow-primary/30 disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden"
+                            className="group relative w-full flex justify-center py-5 px-6 border border-transparent text-lg font-black uppercase tracking-tighter rounded-2xl text-white bg-primary hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all shadow-2xl hover:shadow-primary/40 disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden shadow-primary/20"
                         >
                             {isSubmitting ? (
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-white"></div>
                             ) : (
-                                <span className="flex items-center gap-2">
-                                    Sign In <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                                <span className="flex items-center gap-3">
+                                    Enter Dashboard <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
                                 </span>
                             )}
                         </button>
                     </form>
 
-                    <p className="text-center text-xs text-muted-foreground mt-8">
-                        By signing in, you agree to our <a href="#" className="underline hover:text-primary">Terms of Service</a> and <a href="#" className="underline hover:text-primary">Privacy Policy</a>.
-                    </p>
+                    <div className="pt-8 border-t border-border">
+                        <p className="text-center text-sm text-muted-foreground font-medium">
+                            Powered by <span className="font-bold text-foreground italic">Auralis Intelligence</span> Engine
+                        </p>
+                    </div>
                 </motion.div>
             </div>
         </div>
