@@ -15,15 +15,20 @@ import { fetchPatientVitals } from '../lib/api';
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-card border border-border p-3 rounded-lg shadow-lg">
-                <p className="font-semibold text-foreground mb-1 text-xs">
+            <div className="glass-card border-2 border-white/50 p-5 rounded-3xl shadow-2xl clinical-shadow">
+                <p className="font-black text-foreground mb-3 text-sm uppercase tracking-widest opacity-50">
                     {new Date(label).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
-                {payload.map((p, index) => (
-                    <p key={index} style={{ color: p.color }} className="text-xs font-medium">
-                        {p.name}: {p.value.toFixed(1)}
-                    </p>
-                ))}
+                <div className="space-y-2">
+                    {payload.map((p, index) => (
+                        <div key={index} className="flex items-center gap-3">
+                            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: p.color }} />
+                            <p className="text-base font-black text-slate-700">
+                                {p.name}: <span className="text-primary">{p.value.toFixed(1)}</span>
+                            </p>
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     }
@@ -59,8 +64,8 @@ const VitalsChart = ({ patientId }) => {
         loadVitals();
     }, [patientId]);
 
-    if (loading) return <div className="w-full h-[350px] flex items-center justify-center">Loading Vitals...</div>;
-    if (data.length === 0) return <div className="w-full h-[350px] flex items-center justify-center">No Data Available</div>;
+    if (loading) return <div className="w-full h-full flex items-center justify-center font-black text-muted-foreground animate-pulse">Synthesizing Telemetry...</div>;
+    if (data.length === 0) return <div className="w-full h-full flex items-center justify-center font-black text-rose-400">Endpoint Disconnected</div>;
 
     return (
         <div className="w-full h-[350px]">
@@ -81,14 +86,15 @@ const VitalsChart = ({ patientId }) => {
                         dataKey="time"
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }}
-                        dy={10}
+                        tick={{ fill: 'var(--muted-foreground)', fontSize: 13, fontWeight: 900 }}
+                        dy={15}
                         tickFormatter={(unixTime) => new Date(unixTime).toLocaleTimeString([], { hour: '2-digit' })}
                     />
                     <YAxis
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }}
+                        tick={{ fill: 'var(--muted-foreground)', fontSize: 13, fontWeight: 900 }}
+                        dx={-10}
                     />
                     <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'var(--muted-foreground)', strokeWidth: 1, strokeDasharray: '4 4' }} />
 

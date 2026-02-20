@@ -47,31 +47,31 @@ const Login = () => {
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="flex items-center gap-4 mb-10"
+                        className="flex items-center gap-6 mb-12"
                     >
-                        <div className="p-4 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl">
-                            <Activity className="h-10 w-10 text-white" />
+                        <div className="p-5 bg-white/10 backdrop-blur-3xl rounded-[2rem] border border-white/20 shadow-2xl ring-8 ring-white/5">
+                            <Activity className="h-12 w-12 text-white" />
                         </div>
-                        <h1 className="text-4xl font-black tracking-tighter uppercase italic">Auralis Health Systems</h1>
+                        <h1 className="text-5xl font-black tracking-tighter uppercase italic drop-shadow-2xl">Auralis</h1>
                     </motion.div>
 
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-6xl font-extrabold mb-8 leading-[1.1] tracking-tight"
+                        className="text-7xl font-black mb-10 leading-[1] tracking-tighter drop-shadow-xl"
                     >
                         Precision Insight <br />
-                        <span className="text-blue-400">At Every Moment.</span>
+                        <span className="text-primary-foreground/80 underline decoration-blue-400 decoration-8 underline-offset-8">At Every Moment.</span>
                     </motion.h2>
 
                     <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4 }}
-                        className="text-blue-100/80 text-xl leading-relaxed font-medium mb-12 max-w-lg"
+                        className="text-blue-50/70 text-2xl leading-relaxed font-bold mb-16 max-w-lg italic"
                     >
-                        The intelligent clinical cockpit for modern healthcare. Access high-fidelity patient telemetry and predictive risk scoring in one unified interface.
+                        The intelligent clinical cockpit for modern healthcare. Experience the vanguard of medical data synthesis.
                     </motion.p>
 
                     <motion.div
@@ -113,56 +113,56 @@ const Login = () => {
                     className="w-full max-w-md space-y-10"
                 >
                     <div className="text-center lg:text-left">
-                        <div className="lg:hidden flex items-center gap-2 justify-center mb-6">
-                            <Activity className="h-8 w-8 text-primary" />
-                            <h1 className="text-2xl font-black italic tracking-tighter uppercase">AURALIS</h1>
+                        <div className="lg:hidden flex items-center gap-4 justify-center mb-10">
+                            <Activity className="h-12 w-12 text-primary" />
+                            <h1 className="text-4xl font-black italic tracking-tighter uppercase">AURALIS</h1>
                         </div>
-                        <h2 className="text-4xl font-extrabold tracking-tighter text-foreground mb-4">Clinical Login</h2>
-                        <p className="text-lg text-muted-foreground font-medium">
-                            Authorized personnel only. Access hospital cockpit.
+                        <h2 className="text-5xl font-black tracking-tighter text-foreground mb-4">Clinical Login</h2>
+                        <p className="text-xl text-muted-foreground font-bold">
+                            Authorized Access Zone. Login to Hospital Cockpit.
                         </p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="mt-10 space-y-8">
                         <div className="space-y-6">
                             <div>
-                                <label className="block text-sm font-bold text-foreground/70 uppercase tracking-widest mb-3">
-                                    Clinical Email
+                                <label className="block text-sm font-black text-foreground/50 uppercase tracking-[0.2em] mb-4">
+                                    Clinical Identifier
                                 </label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
-                                        <Mail className="h-6 w-6" />
+                                    <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-all">
+                                        <Mail className="h-7 w-7" />
                                     </div>
                                     <input
                                         type="email"
                                         required
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        className="block w-full pl-14 pr-4 py-4.5 border-2 border-border rounded-2xl bg-secondary/20 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none text-lg font-medium"
+                                        className="block w-full pl-16 pr-6 py-6 border-2 border-slate-100 rounded-[2rem] bg-slate-50 focus:bg-white focus:ring-8 focus:ring-primary/5 focus:border-primary transition-all outline-none text-xl font-bold placeholder:text-slate-300"
                                         placeholder="doctor@auralis.com"
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-bold text-foreground/70 uppercase tracking-widest mb-3">
-                                    Password
+                                <label className="block text-sm font-black text-foreground/50 uppercase tracking-[0.2em] mb-4">
+                                    Secure Key
                                 </label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
-                                        <Lock className="h-6 w-6" />
+                                    <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-all">
+                                        <Lock className="h-7 w-7" />
                                     </div>
                                     <input
                                         type="password"
                                         required
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="block w-full pl-14 pr-4 py-4.5 border-2 border-border rounded-2xl bg-secondary/20 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none text-lg font-medium"
+                                        className="block w-full pl-16 pr-6 py-6 border-2 border-slate-100 rounded-[2rem] bg-slate-50 focus:bg-white focus:ring-8 focus:ring-primary/5 focus:border-primary transition-all outline-none text-xl font-bold placeholder:text-slate-300"
                                         placeholder="••••••••"
                                     />
                                 </div>
-                                <div className="flex justify-end mt-3">
-                                    <a href="#" className="text-sm font-bold text-primary hover:text-blue-700 transition-colors">Recover Credentials</a>
+                                <div className="flex justify-end mt-4">
+                                    <a href="#" className="text-sm font-black text-primary hover:text-blue-700 transition-colors uppercase tracking-widest">Recover Vault</a>
                                 </div>
                             </div>
                         </div>
@@ -170,13 +170,13 @@ const Login = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="group relative w-full flex justify-center py-5 px-6 border border-transparent text-lg font-black uppercase tracking-tighter rounded-2xl text-white bg-primary hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all shadow-2xl hover:shadow-primary/40 disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden shadow-primary/20"
+                            className="group relative w-full flex justify-center py-6 px-8 border border-transparent text-xl font-black uppercase tracking-widest rounded-[2rem] text-white clinical-gradient hover:opacity-90 focus:outline-none focus:ring-8 focus:ring-primary/20 transition-all shadow-2xl clinical-shadow disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden active:scale-95"
                         >
                             {isSubmitting ? (
-                                <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-white"></div>
+                                <div className="animate-spin rounded-full h-8 w-8 border-4 border-white border-t-transparent"></div>
                             ) : (
-                                <span className="flex items-center gap-3">
-                                    Enter Dashboard <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
+                                <span className="flex items-center gap-4">
+                                    Launch Cockpit <ArrowRight className="h-7 w-7 group-hover:translate-x-3 transition-transform duration-500" />
                                 </span>
                             )}
                         </button>

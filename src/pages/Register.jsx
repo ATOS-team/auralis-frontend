@@ -3,19 +3,25 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Activity, Lock, Mail, User, ArrowRight, ShieldCheck } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 const Register = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [gender, setGender] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { register } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!gender) {
+            alert("Please select your professional orientation (Gender).");
+            return;
+        }
         setIsSubmitting(true);
         try {
-            await register(name, email, password);
+            await register(name, email, password, gender);
         } catch (err) {
             console.error("Registration failed:", err);
         } finally {
@@ -48,31 +54,31 @@ const Register = () => {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="flex items-center gap-4 mb-10"
+                        className="flex items-center gap-6 mb-12"
                     >
-                        <div className="p-4 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl">
-                            <Activity className="h-10 w-10 text-white" />
+                        <div className="p-5 bg-white/10 backdrop-blur-3xl rounded-[2rem] border border-white/20 shadow-2xl ring-8 ring-white/5">
+                            <Activity className="h-12 w-12 text-white" />
                         </div>
-                        <h1 className="text-4xl font-black tracking-tighter uppercase italic">Join Auralis Health</h1>
+                        <h1 className="text-5xl font-black tracking-tighter uppercase italic drop-shadow-2xl">Auralis</h1>
                     </motion.div>
 
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-6xl font-extrabold mb-8 leading-[1.1] tracking-tight"
+                        className="text-7xl font-black mb-10 leading-[1] tracking-tighter drop-shadow-xl"
                     >
                         The Future of <br />
-                        <span className="text-blue-400">Clinical Decisions.</span>
+                        <span className="text-primary-foreground/80 underline decoration-blue-400 decoration-8 underline-offset-8">Clinical Decisions.</span>
                     </motion.h2>
 
                     <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4 }}
-                        className="text-blue-100/70 text-xl leading-relaxed font-medium mb-12 max-w-lg"
+                        className="text-blue-50/70 text-2xl leading-relaxed font-bold mb-16 max-w-lg italic"
                     >
-                        Onboard your clinical staff to the most advanced telemetry visualization platform. Secure, intuitive, and data-driven.
+                        Onboard to the vanguard of medical data synthesis. Secure, intuitive, and data-driven.
                     </motion.p>
 
                     <motion.div
@@ -108,66 +114,93 @@ const Register = () => {
                     className="w-full max-w-md space-y-10"
                 >
                     <div className="text-center lg:text-left">
-                        <h2 className="text-4xl font-extrabold tracking-tighter text-foreground mb-4">Request Access</h2>
-                        <p className="text-lg text-muted-foreground font-medium">
-                            Create your clinical credentials to begin.
+                        <h2 className="text-5xl font-black tracking-tighter text-foreground mb-4">Clinical Onboarding</h2>
+                        <p className="text-xl text-muted-foreground font-bold italic">
+                            Create your neural identifiers to begin.
                         </p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="mt-10 space-y-7">
                         <div className="space-y-6">
                             <div>
-                                <label className="block text-sm font-bold text-foreground/70 uppercase tracking-widest mb-3">
-                                    Full Professional Name
+                                <label className="block text-sm font-black text-foreground/50 uppercase tracking-[0.2em] mb-4">
+                                    Professional Identity
                                 </label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
-                                        <User className="h-6 w-6" />
+                                    <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-all">
+                                        <User className="h-7 w-7" />
                                     </div>
                                     <input
                                         type="text"
                                         required
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        className="block w-full pl-14 pr-4 py-4.5 border-2 border-border rounded-2xl bg-secondary/20 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none text-lg font-medium"
+                                        className="block w-full pl-16 pr-6 py-6 border-2 border-slate-100 rounded-[2rem] bg-slate-50 focus:bg-white focus:ring-8 focus:ring-primary/5 focus:border-primary transition-all outline-none text-xl font-bold placeholder:text-slate-300"
                                         placeholder="Dr. Naomi Carter"
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-bold text-foreground/70 uppercase tracking-widest mb-3">
-                                    Clinical Email
+                                <label className="block text-sm font-black text-foreground/50 uppercase tracking-[0.2em] mb-4">
+                                    Professional Orientation
+                                </label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {['Male', 'Female'].map((mode) => (
+                                        <button
+                                            key={mode}
+                                            type="button"
+                                            onClick={() => setGender(mode)}
+                                            className={cn(
+                                                "py-4 rounded-2xl border-2 font-black transition-all flex items-center justify-center gap-3",
+                                                gender === mode
+                                                    ? "bg-primary border-primary text-white shadow-lg shadow-primary/20 scale-[1.02]"
+                                                    : "bg-slate-50 border-slate-100 text-slate-400 hover:bg-slate-100"
+                                            )}
+                                        >
+                                            <div className={cn(
+                                                "h-3 w-3 rounded-full border-2",
+                                                gender === mode ? "bg-white border-white" : "border-slate-300"
+                                            )} />
+                                            {mode.toUpperCase()}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-black text-foreground/50 uppercase tracking-[0.2em] mb-4">
+                                    Network Identifier
                                 </label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
-                                        <Mail className="h-6 w-6" />
+                                    <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-all">
+                                        <Mail className="h-7 w-7" />
                                     </div>
                                     <input
                                         type="email"
                                         required
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        className="block w-full pl-14 pr-4 py-4.5 border-2 border-border rounded-2xl bg-secondary/20 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none text-lg font-medium"
+                                        className="block w-full pl-16 pr-6 py-6 border-2 border-slate-100 rounded-[2rem] bg-slate-50 focus:bg-white focus:ring-8 focus:ring-primary/5 focus:border-primary transition-all outline-none text-xl font-bold placeholder:text-slate-300"
                                         placeholder="doctor@auralis.com"
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-bold text-foreground/70 uppercase tracking-widest mb-3">
-                                    Security Password
+                                <label className="block text-sm font-black text-foreground/50 uppercase tracking-[0.2em] mb-4">
+                                    Vault Security Key
                                 </label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
-                                        <Lock className="h-6 w-6" />
+                                    <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-primary transition-all">
+                                        <Lock className="h-7 w-7" />
                                     </div>
                                     <input
                                         type="password"
                                         required
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="block w-full pl-14 pr-4 py-4.5 border-2 border-border rounded-2xl bg-secondary/20 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none text-lg font-medium"
+                                        className="block w-full pl-16 pr-6 py-6 border-2 border-slate-100 rounded-[2rem] bg-slate-50 focus:bg-white focus:ring-8 focus:ring-primary/5 focus:border-primary transition-all outline-none text-xl font-bold placeholder:text-slate-300"
                                         placeholder="Min. 8 characters"
                                     />
                                 </div>
@@ -177,13 +210,13 @@ const Register = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="group relative w-full flex justify-center py-5 px-6 border border-transparent text-lg font-black uppercase tracking-tighter rounded-2xl text-white bg-primary hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all shadow-2xl hover:shadow-primary/40 disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden mt-4"
+                            className="group relative w-full flex justify-center py-6 px-8 border border-transparent text-xl font-black uppercase tracking-widest rounded-[2rem] text-white clinical-gradient hover:opacity-90 focus:outline-none focus:ring-8 focus:ring-primary/20 transition-all shadow-2xl clinical-shadow disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden active:scale-95 mt-6"
                         >
                             {isSubmitting ? (
-                                <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-white"></div>
+                                <div className="animate-spin rounded-full h-8 w-8 border-4 border-white border-t-transparent"></div>
                             ) : (
-                                <span className="flex items-center gap-3">
-                                    Register Account <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
+                                <span className="flex items-center gap-4">
+                                    Final Diagnostics <ArrowRight className="h-7 w-7 group-hover:translate-x-3 transition-transform duration-500" />
                                 </span>
                             )}
                         </button>

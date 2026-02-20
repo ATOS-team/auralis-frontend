@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
-const API_URL = 'http://localhost:8000';
+const API_URL = 'http://127.0.0.1:5000';
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -55,12 +55,12 @@ export const AuthProvider = ({ children }) => {
         navigate('/login');
     };
 
-    const register = async (name, email, password) => {
+    const register = async (name, email, password, gender) => {
         try {
             const response = await fetch(`${API_URL}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password, role: 'Doctor' })
+                body: JSON.stringify({ name, email, password, gender, role: 'Doctor' })
             });
 
             if (!response.ok) {
@@ -85,11 +85,21 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const refreshUser = (updatedData) => {
+        const userWithAvatar = {
+            ...updatedData,
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(updatedData.name)}&background=0D8ABC&color=fff`
+        };
+        setUser(userWithAvatar);
+        localStorage.setItem('auralis_user', JSON.stringify(userWithAvatar));
+    };
+
     const value = {
         user,
         login,
         logout,
         register,
+        refreshUser,
         loading
     };
 

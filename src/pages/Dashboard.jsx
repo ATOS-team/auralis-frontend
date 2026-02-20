@@ -7,26 +7,26 @@ import { fetchPatients, fetchPatientVitals } from '../lib/api';
 
 const StatCard = ({ title, value, label, icon: Icon, trend, color, delay }) => (
     <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: delay }}
-        className="bg-card p-6 rounded-2xl border border-border shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+        className="glass-card p-8 rounded-[2rem] clinical-shadow relative overflow-hidden group hover:scale-105 transition-all duration-500"
     >
-        <div className={`absolute top-0 right-0 p-24 opacity-5 ${color}`}></div>
-        <div className="flex justify-between items-start mb-4 relative z-10">
-            <div className={`p-3 rounded-xl ${color} bg-opacity-10`}>
-                <Icon className={`h-6 w-6 ${color.replace('bg-', 'text-')}`} />
+        <div className={`absolute -top-10 -right-10 p-24 opacity-5 ${color} rounded-full group-hover:scale-150 transition-transform duration-700`}></div>
+        <div className="flex justify-between items-start mb-6 relative z-10">
+            <div className={`p-4 rounded-2xl ${color} bg-opacity-10 shadow-sm border border-white/20`}>
+                <Icon className={`h-8 w-8 ${color.replace('bg-', 'text-')}`} />
             </div>
             {trend !== undefined && (
-                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${trend > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100/50 text-red-700'}`}>
+                <span className={`text-sm font-black px-3 py-1.5 rounded-xl ${trend > 0 ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-200/50' : 'bg-rose-500/10 text-rose-600 border border-rose-200/50'}`}>
                     {trend > 0 ? '+' : ''}{trend}%
                 </span>
             )}
         </div>
         <div className="relative z-10">
-            <h3 className="text-3xl font-bold text-foreground mb-1">{value}</h3>
-            <p className="text-sm text-muted-foreground font-medium">{title}</p>
-            {label && <p className="text-xs text-muted-foreground mt-2 opacity-80">{label}</p>}
+            <h3 className="text-4xl font-black text-foreground tracking-tighter mb-2">{value}</h3>
+            <p className="text-base font-bold text-muted-foreground uppercase tracking-wider">{title}</p>
+            {label && <p className="text-xs font-bold text-muted-foreground mt-3 opacity-60 uppercase tracking-widest">{label}</p>}
         </div>
     </motion.div>
 );
@@ -62,14 +62,14 @@ const Dashboard = () => {
 
     return (
         <div className="space-y-8 pb-10">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-6 mb-10">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Clinical Decision Support</h2>
-                    <p className="text-muted-foreground">High-fidelity monitoring powered by Kaggle Medical Dataset.</p>
+                    <h1 className="text-4xl font-black tracking-tight text-foreground mb-2">Clinical Intel</h1>
+                    <p className="text-lg text-muted-foreground font-medium italic">High-fidelity decision support powered by Auralis AI Engine.</p>
                 </div>
                 <div className="flex gap-4">
                     <select
-                        className="bg-card border border-border rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                        className="bg-white/50 backdrop-blur-xl border-2 border-white/50 rounded-2xl px-6 py-3.5 text-base font-bold outline-none focus:ring-4 focus:ring-primary/10 transition-all shadow-sm"
                         value={selectedPatientId || ''}
                         onChange={(e) => setSelectedPatientId(e.target.value)}
                     >
@@ -122,57 +122,71 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Left Column - 2/3 width */}
                 <div className="lg:col-span-2 space-y-8">
-                    {/* Vitals Chart */}
+                    {/* Immersive Vitals Chart */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
+                        initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5, delay: 0.4 }}
-                        className="bg-card rounded-2xl border border-border p-6 shadow-sm"
+                        className="glass-card rounded-[2.5rem] p-10 clinical-shadow border-white/40"
                     >
-                        <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center justify-between mb-10">
                             <div>
-                                <h3 className="text-lg font-bold">Vitals Trends: {selectedPatient?.name}</h3>
-                                <p className="text-sm text-muted-foreground">Time-series data from `dummy_obs.csv`</p>
+                                <h3 className="text-2xl font-black tracking-tight">Vitals Stream: {selectedPatient?.name}</h3>
+                                <p className="text-base text-muted-foreground font-medium">Real-time time-series synthesis.</p>
                             </div>
-                            <div className="flex gap-2">
-                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${selectedPatient?.status === 'Critical' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                            <div className="flex gap-3">
+                                <span className={`px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest border-2 ${selectedPatient?.status === 'Critical' ? 'bg-rose-500/10 text-rose-600 border-rose-200/50' : 'bg-emerald-500/10 text-emerald-600 border-emerald-200/50'}`}>
                                     {selectedPatient?.status}
                                 </span>
                             </div>
                         </div>
-                        <VitalsChart patientId={selectedPatientId} />
+                        <div className="h-[400px] w-full">
+                            <VitalsChart patientId={selectedPatientId} />
+                        </div>
                     </motion.div>
 
-                    {/* Recent Risks Section */}
+                    {/* Immersive Alerts Zone */}
                     {selectedPatient?.status === 'Critical' && (
-                        <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 rounded-2xl p-6 border border-red-100 dark:border-red-900/50">
-                            <div className="flex items-center gap-2 mb-4">
-                                <AlertTriangle className="h-5 w-5 text-red-600" />
-                                <h3 className="font-bold text-red-900 dark:text-red-100">Critical Observation</h3>
+                        <motion.div
+                            initial={{ x: -20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            className="clinical-gradient rounded-[2rem] p-8 text-white shadow-2xl clinical-shadow relative overflow-hidden group"
+                        >
+                            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform">
+                                <AlertTriangle className="h-24 w-24" />
                             </div>
-                            <p className="text-sm text-red-800/80 dark:text-red-200/80 mb-4">
-                                Patient <span className="font-semibold">{selectedPatient.id}</span> vitals reached threshold levels at {new Date(selectedPatient.lastCheck).toLocaleTimeString()}. Anomaly detected in SBP/SPO2.
-                            </p>
-                            <button className="text-xs font-bold text-red-700 hover:text-red-800 flex items-center gap-1">
-                                Open Clinical Review <ArrowRight className="h-3 w-3" />
-                            </button>
-                        </div>
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="h-3 w-3 rounded-full bg-white animate-ping" />
+                                    <h3 className="text-xl font-black italic tracking-tighter">THRESHOLD BREACH DETECTED</h3>
+                                </div>
+                                <p className="text-lg font-bold text-white/90 leading-relaxed mb-6">
+                                    Patient <span className="underline underline-offset-4 decoration-rose-300 font-black">{selectedPatient.id}</span> vitals reached critical levels. Immediate clinical intervention recommended.
+                                </p>
+                                <button className="bg-white text-rose-600 px-6 py-3 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center gap-2 shadow-xl">
+                                    Activate Rapid Response <ArrowRight className="h-4 w-4" />
+                                </button>
+                            </div>
+                        </motion.div>
                     )}
                 </div>
 
                 {/* Right Column - 1/3 width */}
                 <div className="space-y-8">
-                    {/* Timeline */}
+                    {/* Immersive Timeline Widget */}
                     <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.5, delay: 0.5 }}
-                        className="bg-card rounded-2xl border border-border p-6 shadow-sm h-full"
+                        className="glass-card rounded-[2.5rem] p-8 clinical-shadow h-full border-white/40"
                     >
-                        <h3 className="text-lg font-bold mb-6">Patient Timeline</h3>
+                        <div className="flex items-center gap-3 mb-8">
+                            <Clock className="h-6 w-6 text-primary" />
+                            <h3 className="text-xl font-black tracking-tight">Clinical Path</h3>
+                        </div>
                         <Timeline patientId={selectedPatientId} />
-                        <button className="w-full mt-6 py-2.5 text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors">
-                            Export Logs
+                        <button className="w-full mt-10 py-5 text-base font-black text-primary bg-primary/10 hover:bg-primary hover:text-white rounded-2xl transition-all shadow-inner uppercase tracking-widest">
+                            Export Care Plan
                         </button>
                     </motion.div>
                 </div>

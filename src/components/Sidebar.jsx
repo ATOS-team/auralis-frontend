@@ -8,7 +8,8 @@ import {
     Settings,
     LogOut,
     X,
-    PieChart
+    PieChart,
+    Stethoscope
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '../lib/utils';
@@ -20,6 +21,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     const navItems = [
         { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
         { name: 'Patients', path: '/patients', icon: Users },
+        { name: 'Doctors', path: '/doctors', icon: Stethoscope },
         { name: 'Analytics', path: '/analytics', icon: PieChart },
         { name: 'Schedule', path: '/schedule', icon: Calendar },
         { name: 'Settings', path: '/settings', icon: Settings },

@@ -18,34 +18,34 @@ const Schedule = () => {
 
     return (
         <div className="space-y-8 h-[calc(100vh-8rem)] flex flex-col">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-10">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Schedule</h2>
-                    <p className="text-muted-foreground">Manage appointments and doctor availability.</p>
+                    <h1 className="text-4xl font-black tracking-tight text-foreground mb-2">Clinical Timeline</h1>
+                    <p className="text-lg text-muted-foreground font-medium italic">Orchestrating surgical and consultative workflows.</p>
                 </div>
-                <button className="bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-600 transition-colors shadow-lg shadow-primary/20 flex items-center gap-2">
-                    <Plus className="h-4 w-4" />
-                    New Appointment
+                <button className="clinical-gradient text-white px-8 py-3.5 rounded-2xl text-lg font-black shadow-2xl clinical-shadow flex items-center gap-3 active:scale-95 transition-all">
+                    <Plus className="h-6 w-6" />
+                    Secure Appointment
                 </button>
             </div>
 
             <div className="flex flex-col lg:flex-row gap-8 h-full overflow-hidden">
                 {/* Calendar Section */}
-                <div className="lg:w-2/3 flex flex-col bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
-                    <div className="p-6 flex items-center justify-between border-b border-border">
-                        <h3 className="text-lg font-bold flex items-center gap-2">
-                            <CalendarIcon className="h-5 w-5 text-primary" />
+                <div className="lg:w-2/3 flex flex-col glass-card rounded-[2.5rem] clinical-shadow overflow-hidden border-white/40">
+                    <div className="p-8 flex items-center justify-between border-b border-white/20">
+                        <h3 className="text-2xl font-black flex items-center gap-3 tracking-tight">
+                            <CalendarIcon className="h-7 w-7 text-primary" />
                             October 2026
                         </h3>
-                        <div className="flex gap-2">
-                            <button className="p-2 hover:bg-secondary rounded-lg text-muted-foreground"><ChevronLeft className="h-5 w-5" /></button>
-                            <button className="p-2 hover:bg-secondary rounded-lg text-muted-foreground"><ChevronRight className="h-5 w-5" /></button>
+                        <div className="flex gap-3">
+                            <button className="p-3 bg-white/50 hover:bg-white rounded-xl text-muted-foreground shadow-sm transition-all"><ChevronLeft className="h-6 w-6" /></button>
+                            <button className="p-3 bg-white/50 hover:bg-white rounded-xl text-muted-foreground shadow-sm transition-all"><ChevronRight className="h-6 w-6" /></button>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-7 border-b border-border bg-secondary/20">
+                    <div className="grid grid-cols-7 border-b border-white/20 bg-primary/5">
                         {days.map(day => (
-                            <div key={day} className="py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            <div key={day} className="py-4 text-center text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">
                                 {day}
                             </div>
                         ))}
@@ -59,9 +59,9 @@ const Schedule = () => {
                             <div
                                 key={day}
                                 onClick={() => setSelectedDate(day)}
-                                className={`border-b border-r border-border/50 p-2 min-h-[80px] cursor-pointer hover:bg-secondary/30 transition-colors relative group ${day === selectedDate ? 'bg-primary/5' : ''}`}
+                                className={`border-b border-r border-white/20 p-4 min-h-[100px] cursor-pointer hover:bg-white transition-all relative group ${day === selectedDate ? 'bg-white/80' : ''}`}
                             >
-                                <span className={`text-sm font-medium h-7 w-7 flex items-center justify-center rounded-full ${day === selectedDate ? 'bg-primary text-primary-foreground' : 'text-foreground group-hover:bg-secondary'}`}>
+                                <span className={`text-base font-black h-10 w-10 flex items-center justify-center rounded-2xl transition-all ${day === selectedDate ? 'clinical-gradient text-white shadow-xl' : 'text-slate-600 group-hover:bg-slate-100'}`}>
                                     {day}
                                 </span>
                                 {/* Mock events dots */}
@@ -81,10 +81,10 @@ const Schedule = () => {
                 </div>
 
                 {/* Upcoming Appointments List */}
-                <div className="lg:w-1/3 bg-card rounded-2xl border border-border shadow-sm flex flex-col overflow-hidden">
-                    <div className="p-6 border-b border-border">
-                        <h3 className="text-lg font-bold">Upcoming ({appointments.length})</h3>
-                        <p className="text-sm text-muted-foreground">For Oct {selectedDate}, 2026</p>
+                <div className="lg:w-1/3 glass-card rounded-[2.5rem] clinical-shadow flex flex-col overflow-hidden border-white/40">
+                    <div className="p-8 border-b border-white/20">
+                        <h3 className="text-2xl font-black tracking-tight">Queue Analysis ({appointments.length})</h3>
+                        <p className="text-base text-muted-foreground font-medium italic">Snapshot: Oct {selectedDate}, 2026</p>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -94,39 +94,37 @@ const Schedule = () => {
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: index * 0.1 }}
-                                className="p-4 rounded-xl bg-secondary/30 border border-border hover:border-primary/50 transition-colors group cursor-pointer"
+                                className="p-6 rounded-[2rem] bg-white shadow-sm border border-slate-100 hover:scale-[1.02] hover:shadow-xl transition-all group cursor-pointer relative overflow-hidden"
                             >
-                                <div className="flex justify-between items-start mb-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                                            {apt.avatar}
-                                        </div>
-                                        <div>
-                                            <h4 className="font-semibold text-sm">{apt.patient}</h4>
-                                            <p className="text-xs text-muted-foreground">{apt.type}</p>
-                                        </div>
+                                <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <MoreHorizontal className="h-6 w-6 text-slate-300" />
+                                </div>
+                                <div className="flex items-center gap-5 mb-5">
+                                    <div className="h-14 w-14 rounded-2xl clinical-gradient flex items-center justify-center text-white font-black text-xl shadow-lg ring-4 ring-white/50">
+                                        {apt.avatar}
                                     </div>
-                                    <button className="text-muted-foreground hover:text-foreground">
-                                        <MoreHorizontal className="h-4 w-4" />
-                                    </button>
+                                    <div>
+                                        <h4 className="font-black text-lg text-slate-800 tracking-tight">{apt.patient}</h4>
+                                        <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">{apt.type}</p>
+                                    </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                                    <div className="flex items-center gap-1.5">
-                                        <Clock className="h-3.5 w-3.5" />
-                                        {apt.time} ({apt.duration})
+                                <div className="grid grid-cols-1 gap-3 text-sm font-bold text-slate-600 mb-5">
+                                    <div className="flex items-center gap-3">
+                                        <Clock className="h-5 w-5 text-primary" />
+                                        {apt.time} <span className="text-slate-300 mx-1">•</span> {apt.duration}
                                     </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <MapPin className="h-3.5 w-3.5" />
+                                    <div className="flex items-center gap-3">
+                                        <MapPin className="h-5 w-5 text-emerald-500" />
                                         {apt.room}
                                     </div>
                                 </div>
 
-                                <div className="mt-3 flex items-center justify-between">
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide
-                                ${apt.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
-                                            apt.status === 'Checked In' ? 'bg-blue-100 text-blue-700' :
-                                                apt.status === 'In Progress' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-700'}
+                                <div className="flex items-center justify-between">
+                                    <span className={`text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest border
+                                ${apt.status === 'Confirmed' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-200/50' :
+                                            apt.status === 'Checked In' ? 'bg-primary/10 text-primary border-primary/20' :
+                                                apt.status === 'In Progress' ? 'bg-amber-500/10 text-amber-600 border-amber-200/50' : 'bg-slate-100 text-slate-600 border-slate-200'}
                             `}>
                                         {apt.status}
                                     </span>
