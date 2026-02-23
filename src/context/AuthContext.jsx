@@ -40,7 +40,16 @@ export const AuthProvider = ({ children }) => {
 
             setUser(userWithAvatar);
             localStorage.setItem('auralis_user', JSON.stringify(userWithAvatar));
-            navigate('/dashboard');
+
+            // Role-based redirection
+            if (userWithAvatar.role === 'Admin') {
+                navigate('/admin');
+            } else if (userWithAvatar.role === 'Doctor') {
+                navigate('/dashboard');
+            } else {
+                navigate('/portal'); // Patient Portal
+            }
+
             return { success: true };
         } catch (err) {
             console.error("Auth Exception:", err);
@@ -55,12 +64,12 @@ export const AuthProvider = ({ children }) => {
         navigate('/login');
     };
 
-    const register = async (name, email, password, gender) => {
+    const register = async (name, email, password, gender, role = 'Patient') => {
         try {
             const response = await fetch(`${API_URL}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password, gender, role: 'Doctor' })
+                body: JSON.stringify({ name, email, password, gender, role })
             });
 
             if (!response.ok) {
@@ -76,7 +85,14 @@ export const AuthProvider = ({ children }) => {
 
             setUser(userWithAvatar);
             localStorage.setItem('auralis_user', JSON.stringify(userWithAvatar));
-            navigate('/dashboard');
+
+            // Redirect based on role
+            if (role === 'Doctor') {
+                navigate('/dashboard');
+            } else {
+                navigate('/portal');
+            }
+
             return { success: true };
         } catch (err) {
             console.error("Auth Exception:", err);

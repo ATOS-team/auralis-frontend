@@ -10,7 +10,9 @@ import {
     LineChart, Line, XAxis, YAxis, CartesianGrid,
     Tooltip, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
-import { fetchPatientById, fetchPatientVitals, fetchPatientTimeline } from '../lib/api';
+import { fetchPatientById, fetchPatientVitals, fetchPatientTimeline, addVitals } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
+import { Plus, Save, X } from 'lucide-react';
 
 const PatientDetail = () => {
     const { id } = useParams();
@@ -19,25 +21,58 @@ const PatientDetail = () => {
     const [vitals, setVitals] = useState([]);
     const [timeline, setTimeline] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { user } = useAuth();
+
+    // Vitals Form State
+    const [showVitalsModal, setShowVitalsModal] = useState(false);
+    const [vitalsForm, setVitalsForm] = useState({
+        hr: '',
+        sbp: '',
+        temp: '',
+        spo2: '',
+        weight: '',
+        height: '',
+        note: ''
+    });
+
+    const refreshData = async () => {
+        try {
+            const [pData, vData, tData] = await Promise.all([
+                fetchPatientById(id),
+                fetchPatientVitals(id),
+                fetchPatientTimeline(id)
+            ]);
+            setPatient(pData);
+            setVitals(vData);
+            setTimeline(tData);
+        } catch (error) {
+            console.error("Failed to load clinical data:", error);
+        }
+    };
+
+    const handleAddVitals = async (e) => {
+        e.preventDefault();
+        try {
+            await addVitals(id, {
+                hr: parseInt(vitalsForm.hr),
+                sbp: parseInt(vitalsForm.sbp),
+                temp: parseFloat(vitalsForm.temp),
+                spo2: parseInt(vitalsForm.spo2),
+                weight: vitalsForm.weight ? parseFloat(vitalsForm.weight) : null,
+                height: vitalsForm.height ? parseFloat(vitalsForm.height) : null,
+                note: vitalsForm.note
+            });
+            setShowVitalsModal(false);
+            setVitalsForm({ hr: '', sbp: '', temp: '', spo2: '', weight: '', height: '', note: '' });
+            await refreshData();
+        } catch (err) {
+            alert("Failed to record vitals: " + err.message);
+        }
+    };
 
     useEffect(() => {
-        const loadData = async () => {
-            try {
-                const [pData, vData, tData] = await Promise.all([
-                    fetchPatientById(id),
-                    fetchPatientVitals(id),
-                    fetchPatientTimeline(id)
-                ]);
-                setPatient(pData);
-                setVitals(vData);
-                setTimeline(tData);
-            } catch (error) {
-                console.error("Failed to load clinical data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadData();
+        setLoading(true);
+        refreshData().finally(() => setLoading(false));
     }, [id]);
 
     if (loading) return (
@@ -65,6 +100,15 @@ const PatientDetail = () => {
                     <span className="text-lg font-bold">Clinical Census</span>
                 </button>
                 <div className="flex items-center gap-4">
+                    {(user?.role === 'Doctor' || user?.role === 'Admin') && (
+                        <button
+                            onClick={() => setShowVitalsModal(true)}
+                            className="p-3 bg-white hover:bg-indigo-50 rounded-2xl transition-all text-indigo-600 shadow-sm border border-indigo-100 flex items-center gap-2 font-bold"
+                        >
+                            <Plus className="h-6 w-6" />
+                            Record Vitals
+                        </button>
+                    )}
                     <button className="p-3 hover:bg-white hover:shadow-xl rounded-2xl transition-all text-muted-foreground shadow-sm bg-white/50 border border-white/20">
                         <Share2 className="h-6 w-6" />
                     </button>
@@ -356,6 +400,101 @@ const PatientDetail = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Vitals Input Modal */}
+            <AnimatePresence>
+                {showVitalsModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowVitalsModal(false)}
+                            className="absolute inset-0 bg-background/80 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="relative w-full max-w-2xl bg-card rounded-[2.5rem] p-10 clinical-shadow border border-white/40 overflow-hidden"
+                        >
+                            <div className="absolute top-0 right-0 p-8">
+                                <button onClick={() => setShowVitalsModal(false)} className="p-3 hover:bg-slate-100 rounded-2xl transition-all">
+                                    <X className="h-6 w-6 text-slate-400" />
+                                </button>
+                            </div>
+
+                            <div className="mb-10">
+                                <h2 className="text-4xl font-black tracking-tighter mb-2">Sync Clinical Telemetry</h2>
+                                <p className="text-lg font-bold text-muted-foreground italic">Update patient vital signs for real-time risk assessment.</p>
+                            </div>
+
+                            <form onSubmit={handleAddVitals} className="space-y-8">
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="space-y-3">
+                                        <label className="text-sm font-black text-muted-foreground uppercase tracking-widest pl-2">Heart Rate (BPM)</label>
+                                        <input
+                                            type="number" required
+                                            value={vitalsForm.hr}
+                                            onChange={(e) => setVitalsForm({ ...vitalsForm, hr: e.target.value })}
+                                            className="w-full p-5 rounded-2xl border-2 border-slate-50 bg-slate-50 focus:bg-white focus:border-indigo-500 outline-none font-black text-xl"
+                                            placeholder="72"
+                                        />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-sm font-black text-muted-foreground uppercase tracking-widest pl-2">Systolic BP (mmHg)</label>
+                                        <input
+                                            type="number" required
+                                            value={vitalsForm.sbp}
+                                            onChange={(e) => setVitalsForm({ ...vitalsForm, sbp: e.target.value })}
+                                            className="w-full p-5 rounded-2xl border-2 border-slate-50 bg-slate-50 focus:bg-white focus:border-indigo-500 outline-none font-black text-xl"
+                                            placeholder="120"
+                                        />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-sm font-black text-muted-foreground uppercase tracking-widest pl-2">Temp (°F)</label>
+                                        <input
+                                            type="number" step="0.1" required
+                                            value={vitalsForm.temp}
+                                            onChange={(e) => setVitalsForm({ ...vitalsForm, temp: e.target.value })}
+                                            className="w-full p-5 rounded-2xl border-2 border-slate-50 bg-slate-50 focus:bg-white focus:border-indigo-500 outline-none font-black text-xl"
+                                            placeholder="98.6"
+                                        />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-sm font-black text-muted-foreground uppercase tracking-widest pl-2">SPO2 Saturation (%)</label>
+                                        <input
+                                            type="number" required
+                                            value={vitalsForm.spo2}
+                                            onChange={(e) => setVitalsForm({ ...vitalsForm, spo2: e.target.value })}
+                                            className="w-full p-5 rounded-2xl border-2 border-slate-50 bg-slate-50 focus:bg-white focus:border-indigo-500 outline-none font-black text-xl"
+                                            placeholder="98"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <label className="text-sm font-black text-muted-foreground uppercase tracking-widest pl-2">Clinical Observation Note</label>
+                                    <textarea
+                                        value={vitalsForm.note}
+                                        onChange={(e) => setVitalsForm({ ...vitalsForm, note: e.target.value })}
+                                        className="w-full p-5 rounded-2xl border-2 border-slate-50 bg-slate-50 focus:bg-white focus:border-indigo-500 outline-none font-bold text-lg h-32"
+                                        placeholder="Add symmetric observations or clinical context..."
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    className="w-full py-6 clinical-gradient text-white rounded-[2rem] font-black text-2xl shadow-2xl clinical-shadow flex items-center justify-center gap-4 hover:opacity-90 active:scale-[0.98] transition-all"
+                                >
+                                    <Save className="h-8 w-8" />
+                                    Synchronize Bio-Metrics
+                                </button>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

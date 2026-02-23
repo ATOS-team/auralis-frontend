@@ -8,27 +8,62 @@ import {
     TrendingUp, Briefcase, Heart, Share2, FileText,
     Stethoscope
 } from 'lucide-react';
-import { fetchDoctorById } from '../lib/api';
+import { fetchDoctorById, fetchReviews, submitReview } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
 
 const DoctorDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [doctor, setDoctor] = useState(null);
+    const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isReviewOpen, setIsReviewOpen] = useState(false);
+    const [reviewForm, setReviewForm] = useState({
+        rating: 5,
+        comment: ''
+    });
+
+    const loadData = async () => {
+        try {
+            const [docData, revData] = await Promise.all([
+                fetchDoctorById(id),
+                fetchReviews(id)
+            ]);
+            setDoctor(docData);
+            setReviews(revData);
+        } catch (error) {
+            console.error("Failed to load clinical profile:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const loadDoctor = async () => {
-            try {
-                const data = await fetchDoctorById(id);
-                setDoctor(data);
-            } catch (error) {
-                console.error("Failed to load clinical profile:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadDoctor();
+        loadData();
     }, [id]);
+
+    const handleReviewSubmit = async (e) => {
+        e.preventDefault();
+        if (!user) {
+            alert("Please sign in to provide professional clinical feedback.");
+            return;
+        }
+        try {
+            await submitReview(id, {
+                doctor_id: id,
+                patient_id: user.id || user._id,
+                patient_name: user.name,
+                rating: reviewForm.rating,
+                comment: reviewForm.comment
+            });
+            setIsReviewOpen(false);
+            setReviewForm({ rating: 5, comment: '' });
+            loadData();
+        } catch (error) {
+            alert("Feedback submission failed.");
+        }
+    };
 
     if (loading) return (
         <div className="h-[80vh] flex flex-col items-center justify-center gap-4">
@@ -108,7 +143,7 @@ const DoctorDetail = () => {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
-                                        <span>5.0 Excellence Rating</span>
+                                        <span>{reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : '5.0'} Excellence Rating</span>
                                     </div>
                                 </div>
                             </div>
@@ -191,6 +226,111 @@ const DoctorDetail = () => {
                                     </div>
                                     <p className="text-sm font-bold text-slate-700 leading-tight pt-1">{ach}</p>
                                 </div>
+                            ))}
+                        </div>
+                    </motion.div>
+
+                    {/* Patient & Practitioner Reviews */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="glass-card rounded-[2.5rem] p-10 border-white/40 clinical-shadow mt-8"
+                    >
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+                            <div>
+                                <h3 className="text-2xl font-black tracking-tight mb-2 flex items-center gap-3">
+                                    <Heart className="h-7 w-7 text-rose-500" />
+                                    Clinical Feedback ({reviews.length})
+                                </h3>
+                                <p className="text-muted-foreground font-bold italic">Patient experience and surgical outcome reviews.</p>
+                            </div>
+                            {user?.role === 'Patient' && (
+                                <button
+                                    onClick={() => setIsReviewOpen(!isReviewOpen)}
+                                    className="px-6 py-3 bg-secondary/50 hover:bg-white rounded-xl font-black text-sm uppercase tracking-widest transition-all shadow-sm"
+                                >
+                                    {isReviewOpen ? 'Cancel Feedback' : 'Submit Review'}
+                                </button>
+                            )}
+                        </div>
+
+                        <AnimatePresence>
+                            {isReviewOpen && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="overflow-hidden mb-12 border-b border-slate-50 pb-12"
+                                >
+                                    <form onSubmit={handleReviewSubmit} className="space-y-6">
+                                        <div className="flex gap-4">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <button
+                                                    key={star}
+                                                    type="button"
+                                                    onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                                                    className="transition-transform active:scale-95"
+                                                >
+                                                    <Star
+                                                        className={`h-8 w-8 ${star <= reviewForm.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-200'}`}
+                                                    />
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <textarea
+                                            required
+                                            value={reviewForm.comment}
+                                            onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                                            placeholder="Describe your surgical experience or clinical consultation..."
+                                            className="w-full p-6 bg-slate-50 border-2 border-slate-100 rounded-[2rem] outline-none focus:border-primary/30 font-bold transition-all min-h-[150px]"
+                                        />
+                                        <button
+                                            type="submit"
+                                            className="clinical-gradient text-white px-10 py-4 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all"
+                                        >
+                                            AUTHENTICATE FEEDBACK
+                                        </button>
+                                    </form>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        <div className="space-y-6">
+                            {reviews.length === 0 && (
+                                <div className="text-center py-12 bg-slate-50 rounded-[2rem] border border-dashed border-slate-200">
+                                    <p className="font-bold text-muted-foreground italic">No clinical reviews available for this practitioner.</p>
+                                </div>
+                            )}
+                            {reviews.map((rev, i) => (
+                                <motion.div
+                                    key={rev.id || i}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={{ once: true }}
+                                    className="p-8 bg-white border border-slate-100 rounded-[2rem] shadow-sm hover:shadow-xl transition-all"
+                                >
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center font-black text-primary text-xl">
+                                                {rev.patient_name[0]}
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-lg">{rev.patient_name}</h4>
+                                                <p className="text-xs font-black text-muted-foreground uppercase">{new Date(rev.created_at).toLocaleDateString()}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Star
+                                                    key={i}
+                                                    className={`h-4 w-4 ${i < rev.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-200'}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <p className="text-slate-600 font-bold leading-relaxed">{rev.comment}</p>
+                                </motion.div>
                             ))}
                         </div>
                     </motion.div>

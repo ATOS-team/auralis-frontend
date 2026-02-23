@@ -10,18 +10,19 @@ const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [gender, setGender] = useState('');
+    const [role, setRole] = useState('Patient');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { register } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!gender) {
-            alert("Please select your professional orientation (Gender).");
+            alert("Please select your orientation.");
             return;
         }
         setIsSubmitting(true);
         try {
-            await register(name, email, password, gender);
+            await register(name, email, password, gender, role);
         } catch (err) {
             console.error("Registration failed:", err);
         } finally {
@@ -136,8 +137,31 @@ const Register = () => {
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
                                         className="block w-full pl-16 pr-6 py-6 border-2 border-slate-100 rounded-[2rem] bg-slate-50 focus:bg-white focus:ring-8 focus:ring-primary/5 focus:border-primary transition-all outline-none text-xl font-bold placeholder:text-slate-300"
-                                        placeholder="Dr. Naomi Carter"
+                                        placeholder="Identification Name"
                                     />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-black text-foreground/50 uppercase tracking-[0.2em] mb-4">
+                                    System Role
+                                </label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {['Patient', 'Doctor'].map((r) => (
+                                        <button
+                                            key={r}
+                                            type="button"
+                                            onClick={() => setRole(r)}
+                                            className={cn(
+                                                "py-4 rounded-2xl border-2 font-black transition-all flex items-center justify-center gap-3",
+                                                role === r
+                                                    ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-200"
+                                                    : "bg-slate-50 border-slate-100 text-slate-400 hover:bg-slate-100"
+                                            )}
+                                        >
+                                            {r.toUpperCase()}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
 

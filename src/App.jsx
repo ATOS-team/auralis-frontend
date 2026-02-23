@@ -12,6 +12,9 @@ import Schedule from './pages/Schedule';
 import Settings from './pages/Settings';
 import Doctors from './pages/Doctors';
 import DoctorDetail from './pages/DoctorDetail';
+import PatientPortal from './pages/PatientPortal';
+import AdminCommand from './pages/AdminCommand';
+import Appointments from './pages/Appointments';
 
 // Protected Route Wrapper
 const ProtectedRoute = () => {
@@ -36,10 +39,13 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/portal" element={<PatientPortal />} />
+              <Route path="/admin" element={<AdminCommand />} />
               <Route path="/patients" element={<Patients />} />
               <Route path="/patients/:id" element={<PatientDetail />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/schedule" element={<Schedule />} />
+              <Route path="/appointments" element={<Appointments />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/doctors" element={<Doctors />} />
               <Route path="/doctors/:id" element={<DoctorDetail />} />

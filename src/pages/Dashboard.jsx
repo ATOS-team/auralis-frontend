@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, TrendingUp, AlertTriangle, Clock, ArrowRight, User as UserIcon } from 'lucide-react';
-import { motion } from 'framer-motion';
+import {
+    Activity, TrendingUp, AlertTriangle, Clock, ArrowRight,
+    User as UserIcon, Calendar, CheckCircle, XCircle,
+    MoreHorizontal, Info, Clipboard, Timer, CheckCircle2,
+    AlertCircle
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import VitalsChart from '../components/VitalsChart';
 import Timeline from '../components/Timeline';
-import { fetchPatients, fetchPatientVitals } from '../lib/api';
+import { fetchPatients, fetchAppointments, updateAppointment, fetchPatientById } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
+import { cn } from '../lib/utils';
 
 const StatCard = ({ title, value, label, icon: Icon, trend, color, delay }) => (
     <motion.div
@@ -31,17 +38,211 @@ const StatCard = ({ title, value, label, icon: Icon, trend, color, delay }) => (
     </motion.div>
 );
 
+const AppointmentModal = ({ appointment, onClose, onRefresh }) => {
+    const [patient, setPatient] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [cancellationReason, setCancellationReason] = useState("");
+    const [showCancelInput, setShowCancelInput] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        if (appointment) {
+            setLoading(true);
+            fetchPatientById(appointment.patient_id)
+                .then(setPatient)
+                .finally(() => setLoading(false));
+        }
+    }, [appointment]);
+
+    const handleAction = async (status) => {
+        if (status === 'Cancelled' && !showCancelInput) {
+            setShowCancelInput(true);
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            await updateAppointment(appointment.id, {
+                status,
+                cancellation_reason: status === 'Cancelled' ? cancellationReason : null
+            });
+            onRefresh();
+            onClose();
+        } catch (err) {
+            alert("Failed to update appointment: " + err.message);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    if (!appointment) return null;
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={onClose}
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="relative bg-white/90 backdrop-blur-2xl rounded-[3rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-white/50"
+            >
+                <div className="p-10 flex-1 overflow-y-auto no-scrollbar">
+                    <div className="flex justify-between items-start mb-10">
+                        <div>
+                            <span className="px-5 py-2 rounded-full bg-indigo-50 text-indigo-600 font-black text-xs uppercase tracking-widest border border-indigo-100 mb-4 inline-block">
+                                Clinical Session Management
+                            </span>
+                            <h2 className="text-4xl font-black tracking-tighter text-foreground">Manage Appointment</h2>
+                        </div>
+                        <button onClick={onClose} className="p-4 rounded-2xl hover:bg-slate-100 transition-all text-slate-400">
+                            <XCircle className="h-8 w-8" />
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        {/* Patient Details */}
+                        <div className="space-y-6">
+                            <h3 className="text-xl font-black tracking-tight flex items-center gap-3">
+                                <UserIcon className="h-6 w-6 text-primary" /> Patient Synthesis
+                            </h3>
+                            {loading ? (
+                                <div className="animate-pulse space-y-4">
+                                    <div className="h-20 bg-slate-100 rounded-3xl" />
+                                    <div className="h-20 bg-slate-100 rounded-3xl" />
+                                </div>
+                            ) : (
+                                <div className="glass-card p-6 rounded-[2rem] border-white/40 space-y-4">
+                                    <div className="flex justify-between items-center pb-4 border-b border-slate-100">
+                                        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Full Name</span>
+                                        <span className="font-black text-foreground">{patient?.name}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pb-4 border-b border-slate-100">
+                                        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Age / Gender</span>
+                                        <span className="font-black text-foreground">{patient?.age}y / {patient?.gender}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pb-4 border-b border-slate-100">
+                                        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Core Condition</span>
+                                        <span className="font-black text-indigo-600">{patient?.condition}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Clinical Status</span>
+                                        <span className={cn(
+                                            "px-3 py-1 rounded-lg text-xs font-black uppercase tracking-tighter",
+                                            patient?.status === 'Critical' ? "bg-rose-100 text-rose-600" : "bg-emerald-100 text-emerald-600"
+                                        )}>{patient?.status}</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Appointment Info */}
+                        <div className="space-y-6">
+                            <h3 className="text-xl font-black tracking-tight flex items-center gap-3">
+                                <Timer className="h-6 w-6 text-primary" /> Session Parameters
+                            </h3>
+                            <div className="glass-card p-6 rounded-[2rem] border-white/40 space-y-4">
+                                <div className="flex justify-between items-center pb-4 border-b border-slate-100">
+                                    <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Date & Time</span>
+                                    <span className="font-black text-foreground">{appointment.date} @ {appointment.time}</span>
+                                </div>
+                                <div className="flex justify-between items-center pb-4 border-b border-slate-100">
+                                    <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Current Status</span>
+                                    <span className="font-black text-indigo-600 uppercase tracking-widest text-xs">{appointment.status}</span>
+                                </div>
+                                <div className="space-y-2">
+                                    <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Patient Intelligence / Notes</span>
+                                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-sm font-medium italic text-slate-600">
+                                        {appointment.notes || "No additional parameters provided by patient."}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {showCancelInput && (
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            className="mt-10 p-8 bg-rose-50 rounded-[2rem] border-2 border-rose-100 space-y-4"
+                        >
+                            <label className="text-sm font-black text-rose-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <AlertCircle className="h-5 w-5" /> Protocol for Cancellation
+                            </label>
+                            <textarea
+                                value={cancellationReason}
+                                onChange={(e) => setCancellationReason(e.target.value)}
+                                placeholder="State the clinical reasoning for session termination..."
+                                className="w-full p-6 rounded-2xl border-2 border-rose-100 bg-white focus:border-rose-300 outline-none font-bold text-rose-900 h-32 no-scrollbar"
+                            />
+                        </motion.div>
+                    )}
+                </div>
+
+                <div className="p-10 bg-slate-50/50 backdrop-blur-sm border-t border-white/50 grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <button
+                        onClick={() => handleAction('Approved')}
+                        disabled={isSaving}
+                        className="py-5 bg-indigo-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl flex items-center justify-center gap-2"
+                    >
+                        <CheckCircle className="h-4 w-4" /> Approve
+                    </button>
+                    <button
+                        onClick={() => handleAction('Pending')}
+                        disabled={isSaving}
+                        className="py-5 bg-amber-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-amber-600 transition-all shadow-xl flex items-center justify-center gap-2"
+                    >
+                        <Clock className="h-4 w-4" /> Set Pending
+                    </button>
+                    <button
+                        onClick={() => handleAction('Completed')}
+                        disabled={isSaving}
+                        className="py-5 bg-emerald-500 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl flex items-center justify-center gap-2"
+                    >
+                        <CheckCircle2 className="h-4 w-4" /> Completed
+                    </button>
+                    <button
+                        onClick={() => handleAction('Cancelled')}
+                        disabled={isSaving}
+                        className={cn(
+                            "py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-2",
+                            showCancelInput ? "bg-rose-600 text-white hover:bg-rose-700" : "bg-white text-rose-600 hover:bg-rose-50 border-2 border-rose-100"
+                        )}
+                    >
+                        <XCircle className="h-4 w-4" /> {showCancelInput ? "Confirm Cancel" : "Term. Session"}
+                    </button>
+                </div>
+            </motion.div>
+        </div>
+    );
+};
+
 const Dashboard = () => {
+    const { user } = useAuth();
     const [patients, setPatients] = useState([]);
     const [selectedPatientId, setSelectedPatientId] = useState(null);
+    const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedApt, setSelectedApt] = useState(null);
 
     useEffect(() => {
         const loadInitialData = async () => {
             try {
-                const data = await fetchPatients();
-                setPatients(data);
-                if (data.length > 0) setSelectedPatientId(data[0].id);
+                const [patientsData] = await Promise.all([
+                    fetchPatients()
+                ]);
+                setPatients(patientsData);
+                if (patientsData.length > 0) setSelectedPatientId(patientsData[0].id);
+
+                if (user?.role === 'Doctor') {
+                    const aptsData = await fetchAppointments(user.id, 'Doctor');
+                    setAppointments(aptsData);
+                }
             } catch (err) {
                 console.error("Error loading dashboard data:", err);
             } finally {
@@ -49,7 +250,18 @@ const Dashboard = () => {
             }
         };
         loadInitialData();
-    }, []);
+    }, [user]);
+
+    const loadAppointments = async () => {
+        if (user?.role === 'Doctor') {
+            try {
+                const data = await fetchAppointments(user.id, 'Doctor');
+                setAppointments(data);
+            } catch (err) {
+                console.error("Error refreshing appointments:", err);
+            }
+        }
+    };
 
     const criticalCount = patients.filter(p => p.status === 'Critical').length;
     const selectedPatient = patients.find(p => p.id === selectedPatientId);
@@ -102,7 +314,7 @@ const Dashboard = () => {
                 />
                 <StatCard
                     title="Latest Age Avg"
-                    value={`${Math.round(patients.reduce((acc, p) => acc + p.age, 0) / patients.length)}y`}
+                    value={`${patients.length > 0 ? Math.round(patients.reduce((acc, p) => acc + p.age, 0) / patients.length) : 0}y`}
                     label="Patient population average"
                     icon={UserIcon}
                     color="bg-purple-500"
@@ -136,7 +348,7 @@ const Dashboard = () => {
                             </div>
                             <div className="flex gap-3">
                                 <span className={`px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest border-2 ${selectedPatient?.status === 'Critical' ? 'bg-rose-500/10 text-rose-600 border-rose-200/50' : 'bg-emerald-500/10 text-emerald-600 border-emerald-200/50'}`}>
-                                    {selectedPatient?.status}
+                                    {selectedPatient?.status || 'Stable'}
                                 </span>
                             </div>
                         </div>
@@ -191,6 +403,96 @@ const Dashboard = () => {
                     </motion.div>
                 </div>
             </div>
+
+            {/* Extra Appointment Section for Doctors */}
+            {user?.role === 'Doctor' && (
+                <div className="mt-16 space-y-8">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-3xl font-black tracking-tight flex items-center gap-4">
+                            <Calendar className="h-10 w-10 text-primary" /> Patient Load Matrix
+                        </h3>
+                        <div className="flex items-center gap-2 px-6 py-2 bg-indigo-50 text-indigo-600 rounded-full font-black text-sm uppercase tracking-widest shadow-sm border border-indigo-100">
+                            <Info className="h-4 w-4" /> Physician-Only Management
+                        </div>
+                    </div>
+
+                    <div className="glass-card rounded-[2.5rem] overflow-hidden clinical-shadow border-white/40 bg-white/30 backdrop-blur-md">
+                        <div className="overflow-x-auto no-scrollbar">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="bg-slate-50/50 border-b border-slate-100">
+                                        <th className="px-10 py-8 text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">Patient Registry</th>
+                                        <th className="px-6 py-8 text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">Deployment Date</th>
+                                        <th className="px-6 py-8 text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">Timestamp</th>
+                                        <th className="px-6 py-8 text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">Clinical Status</th>
+                                        <th className="px-10 py-8 text-right text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">Operations</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {appointments.length > 0 ? (
+                                        appointments.map((apt, idx) => (
+                                            <tr key={apt.id} className="hover:bg-slate-50/50 transition-colors group">
+                                                <td className="px-10 py-6">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="h-12 w-12 rounded-2xl bg-indigo-50 flex items-center justify-center border-2 border-indigo-100 group-hover:bg-primary group-hover:border-primary transition-all">
+                                                            <UserIcon className="h-6 w-6 text-primary group-hover:text-white" />
+                                                        </div>
+                                                        <span className="font-black text-lg text-foreground">{apt.patient_name}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-6 font-bold text-slate-600">{apt.date}</td>
+                                                <td className="px-6 py-6">
+                                                    <div className="flex items-center gap-2 font-bold text-indigo-600">
+                                                        <Clock className="h-4 w-4" /> {apt.time}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-6">
+                                                    <span className={cn(
+                                                        "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.1em] border-2",
+                                                        apt.status === 'Approved' ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                                                            apt.status === 'Completed' ? "bg-indigo-50 text-indigo-600 border-indigo-100" :
+                                                                apt.status === 'Cancelled' ? "bg-rose-50 text-rose-600 border-rose-100" :
+                                                                    "bg-amber-50 text-amber-600 border-amber-100"
+                                                    )}>
+                                                        {apt.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-10 py-6 text-right">
+                                                    <button
+                                                        onClick={() => setSelectedApt(apt)}
+                                                        className="p-3 bg-white border-2 border-slate-100 rounded-xl hover:border-primary hover:text-primary transition-all shadow-sm flex items-center gap-2 font-black text-xs uppercase tracking-widest"
+                                                    >
+                                                        <MoreHorizontal className="h-5 w-5" /> Manage
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="5" className="py-20 text-center">
+                                                <div className="flex flex-col items-center gap-4 text-slate-300">
+                                                    <Clipboard className="h-16 w-16 opacity-20" />
+                                                    <p className="text-xl font-black uppercase tracking-widest opacity-30">No Active Data Stream</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <AnimatePresence>
+                {selectedApt && (
+                    <AppointmentModal
+                        appointment={selectedApt}
+                        onClose={() => setSelectedApt(null)}
+                        onRefresh={loadAppointments}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };

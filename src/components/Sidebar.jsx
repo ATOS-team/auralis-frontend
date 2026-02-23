@@ -9,23 +9,48 @@ import {
     LogOut,
     X,
     PieChart,
-    Stethoscope
+    Stethoscope,
+    Shield,
+    Heart,
+    FileText,
+    ClipboardList
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
-    const { logout } = useAuth();
+    const { logout, user } = useAuth();
 
-    const navItems = [
-        { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-        { name: 'Patients', path: '/patients', icon: Users },
-        { name: 'Doctors', path: '/doctors', icon: Stethoscope },
-        { name: 'Analytics', path: '/analytics', icon: PieChart },
-        { name: 'Schedule', path: '/schedule', icon: Calendar },
-        { name: 'Settings', path: '/settings', icon: Settings },
-    ];
+    const getNavItems = () => {
+        if (user?.role === 'Admin') {
+            return [
+                { name: 'Control Center', path: '/admin', icon: Shield },
+                { name: 'Analytics', path: '/dashboard', icon: LayoutDashboard },
+                { name: 'Clinicians', path: '/doctors', icon: Stethoscope },
+                { name: 'System Settings', path: '/settings', icon: Settings },
+            ];
+        }
+        if (user?.role === 'Doctor') {
+            return [
+                { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+                { name: 'Appointments', path: '/appointments', icon: ClipboardList },
+                { name: 'Patients', path: '/patients', icon: Users },
+                { name: 'Analytics', path: '/analytics', icon: PieChart },
+                { name: 'Schedule', path: '/schedule', icon: Calendar },
+                { name: 'Settings', path: '/settings', icon: Settings },
+            ];
+        }
+        // Default: Patient
+        return [
+            { name: 'My Health', path: '/portal', icon: Heart },
+            { name: 'Appointments', path: '/schedule', icon: Calendar },
+            { name: 'Medical Records', path: '/patients', icon: FileText },
+            { name: 'Settings', path: '/settings', icon: Settings },
+        ];
+    };
+
+    const navItems = getNavItems();
 
     const SidebarContent = () => (
         <div className="flex flex-col h-full bg-card border-r border-border shadow-sm">
